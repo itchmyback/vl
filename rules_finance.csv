@@ -1,0 +1,8 @@
+If What,Operator,Parameter,Action,How
+state_of_residence,==,Florida,Disqualify,
+state_of_residence,==,Montana,Disqualify,
+credit_score,>=,720,Adjust,-0.3
+credit_score,>=,350,Adjust,0.5
+credit_score,>=,500,Adjust,0.4
+product_name,==,7-1 ARM,Adjust,0.5
+product_name,==,30 YEAR FIXED,Contact,Phone Call
