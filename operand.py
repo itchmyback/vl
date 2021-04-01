@@ -22,7 +22,7 @@ class Operand:
 		elif(self.action_type == "Qualify"):
 			return False
 		else:
-			return "Not a valid action for this operand"
+			return "Not a valid action for this condition type"
 
 	def adjust(self):
 		if not(eval(self.condition)):
@@ -30,7 +30,7 @@ class Operand:
 		elif(self.action_type == "Adjust"):
 			return self.action_param
 		else:
-			return "Not a valid action for this operand"
+			return "Not a valid action for this condition type"
 
 # Subclasses per Condition Operand ie cond_type
 
@@ -40,7 +40,7 @@ class StateOfResidence(Operand):
 
 	def exec(self):
 		self.condition = self.condStr
-		disqualify()
+		self.disqualify()
 
 class CreditScore(Operand):
 	def check(self):
@@ -49,15 +49,17 @@ class CreditScore(Operand):
 	highestTier = 0 # This must change as instances update it
 
 	def getHighest(self):
-		if(self.cond_param > CreditScore.highestTier):
-			CreditScore.highTier = self.cond_param
-			print('{} is now the highest matching credit tier'.format(self.cond_param))
+		print('highestTier {}'.format(CreditScore.highestTier))
+		if(int(self.cond_param) > CreditScore.highestTier):
+			CreditScore.highestTier = int(self.cond_param)
+#			print('highestTier {}'.format(CreditScore.highestTier))
+#			print('{} is now the highest matching credit tier'.format(self.cond_param))
 		else: return
 
 	def exec(self):
 		self.getHighest()
 		self.condition = self.condNum
-		adjust()
+		self.adjust()
 
 class ProductName(Operand):
 	def check(self):
@@ -65,4 +67,4 @@ class ProductName(Operand):
 
 	def exec(self):
 		self.condition = self.condStr
-		adjust()
+		self.adjust()
