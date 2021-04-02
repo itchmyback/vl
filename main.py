@@ -17,6 +17,7 @@ print("###\n")
 
 # Call loadRules() to populate a rules list
 rules = rulesengine.loadRules("rules_finance.csv")
+# rules = rulesengine.loadRules("rules_finance_exception.csv")
 
 # Instantiate RulesEngine
 rules_engine = rulesengine.RulesEngine(aperson, aproduct, rules)
@@ -36,6 +37,7 @@ print("###\n")
 
 # Call loadRules() to populate a rules list
 rules = rulesengine.loadRules("rules_finance.csv")
+# rules = rulesengine.loadRules("rules_finance_exception.csv")
 
 # Instantiate RulesEngine
 rules_engine = rulesengine.RulesEngine(aperson, aproduct, rules)
