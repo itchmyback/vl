@@ -12,6 +12,10 @@ class RulesEngine:
 		
 		# reset static class variable for Operand(CreditScore.highestTier))
 		operand.CreditScore.highestTier = 0
+		operand.CreditScore.finalCreditAdj = 0
+		
+		# static variable for new action alert
+		alertMsg = None
 
 	# main execution statement	
 	def runRules(self):
@@ -19,8 +23,9 @@ class RulesEngine:
 		# Instantiate an object depending on the type of condition type - state_of_residence, credit_score, product_name
 		# Helper objects will determine the results
 		# The RulesEngine will handle any updates to top level instance inputs ie person, product, etc
+		## In fact, the RulesEngine should probably handle all the outputs
 		
-		cs = [None] * len(self.rules) # This seems overly complicated to initialize
+#		cs = [None] * len(self.rules) # This seems overly complicated to initialize
 #		print(cs)
 
 		# Iterate through the rules list, use an index 'i' so that rule objects can be created with that index
@@ -48,10 +53,13 @@ class RulesEngine:
 					self.product.disqualified = sor.exec()	
 					print(self.product.disqualified)
 			elif(cond_type == "credit_score"):
-				cs.insert(i, operand.CreditScore(self.person.credit_score, cond_operator, cond_param, action_type, action_param))
+				cs = operand.CreditScore(self.person.credit_score, cond_operator, cond_param, action_type, action_param)
+#				cs.insert(i, operand.CreditScore(self.person.credit_score, cond_operator, cond_param, action_type, action_param))
 #				print('cs execution is {}'.format(cs[i].exec()))
-				if(cs[i].exec()): 
-					self.product.interest_rate = self.product.interest_rate + cs[i].exec()
+				if(cs.exec()): 
+#				if(cs[i].exec()): 
+					# This calculation will be handled using a final static approach
+#					self.product.interest_rate = self.product.interest_rate + cs[i].exec()
 					print(self.product.interest_rate)
 			elif(cond_type == "product_name"):
 				pn = operand.ProductName(self.product.name, cond_operator, cond_param, action_type, action_param)
@@ -62,11 +70,17 @@ class RulesEngine:
 			else:
 				pass # Assume header
 
+		# Static Credit Score determination
+#		print(operand.CreditScore.finalCreditAdj)
+		self.product.interest_rate = self.product.interest_rate + operand.CreditScore.finalCreditAdj
+			
+
 	# Final Outputs
 	def printOutput(self):
 		print("\n###")
 		print("Is the product disqualified?", self.product.disqualified)
 		print("Final interest rate: ", self.product.interest_rate)
+#		print("Actions to take: ", pn.action_param)
 		print("###\n")
 
 # Function to get rules by opening file and saving to list, line by line, and then process to a string array
