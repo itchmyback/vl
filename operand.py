@@ -13,43 +13,42 @@ class Operand:
 		self.condNum = '{} {} {}'.format(self.cond_type, self.cond_operator, self.cond_param)
 		self.condition = None # This should be set to either condStr or condNum per subclass
 
-	# methods for action types  - disqualify, adjust, contact
-	def disqualify(self):
-		if not(eval(self.condition)):
-			return
-		elif(self.action_type == "Disqualify"):
+	# Action type tests, to pick and choose into subclasses
+	def ruleTest(self):
+		if(eval(self.condition)):
 			return True
-		elif(self.action_type == "Qualify"):
-			return False
-		else:
-			return "Not a valid action for this condition type"
+
+	def disqualify(self):
+		if(self.action_type == "Disqualify"):
+			return True
 
 	def adjust(self):
-		if not(eval(self.condition)):
-			return
-		elif(self.action_type == "Adjust"):
+		if(self.action_type == "Adjust"):
 			return float(self.action_param)
-		else:
-			return "Not a valid action for this condition type"
 
-	# new action type
+	# new action types
+	def qualify(self):
+		if(self.action_type == "Qualify"):
+			return False
+
 	def contact(self):
-		if not(eval(self.condition)):
-			return
-		elif(self.action_type == "Contact"):
+		if(self.action_type == "Contact"):
 			return str(self.action_param)
-		else:
-			return "Not a valid action for this condition type"
 
 # Subclasses per Condition Operand ie cond_type
-
 class StateOfResidence(Operand):
 	def check(self):
 		pass
 
 	def exec(self):
 		self.condition = self.condStr
-		return self.disqualify()
+		if not(self.ruleTest()):
+			return
+		if(self.disqualify() != None):
+			return self.disqualify()
+		if(self.qualify() != None):
+			return self.qualify()
+		raise Exception("Not a valid action")
 
 class CreditScore(Operand):
 	def check(self):
@@ -62,22 +61,30 @@ class CreditScore(Operand):
 		# This must be gte, otherwise repeated execution calls will fail because cred_score is not > cred_score
 		if(int(self.cond_param) >= CreditScore.highestTier):
 			CreditScore.highestTier = int(self.cond_param)
-#			print('highestTier {}'.format(CreditScore.highestTier))
-			print('{} is now the highest matching credit tier'.format(self.cond_param))
+#			print('{} is now the highest matching credit tier'.format(self.cond_param))
 			return True
 		else: return
 
 	def exec(self):
-		if(self.getHighest()):
-			self.condition = self.condNum
+		self.condition = self.condNum
+		if not(self.ruleTest()):
+			return
+		if not(self.getHighest()):
+			return
+		if(self.adjust != None):
 			return self.adjust()
-		else: return
+		raise Exception("Not a valid action")
 
 class ProductName(Operand):
 	def check(self):
 		pass
 
-	# implementation of multiple action type functions, with if-return statements
 	def exec(self):
 		self.condition = self.condStr
-		return self.adjust()
+		if not(self.ruleTest()):
+			return
+		if(self.adjust != None):
+			return self.adjust()
+		if(self.contact != None):
+			return self.contact()
+		raise Exception("Not a valid action")
