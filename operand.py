@@ -55,24 +55,32 @@ class CreditScore(Operand):
 		pass
 
 	highestTier = 0 # This must change as instances update it
+	finalCreditAdj = 0 # This is the final interest modified by all credit score rules
 
+	# This is mostly a static method
+	# This action type will have to processed in the RulesEngine
 	def getHighest(self):
 #		print('highestTier {}'.format(CreditScore.highestTier))
 		# This must be gte, otherwise repeated execution calls will fail because cred_score is not > cred_score
 		if(int(self.cond_param) >= CreditScore.highestTier):
 			CreditScore.highestTier = int(self.cond_param)
-#			print('{} is now the highest matching credit tier'.format(self.cond_param))
+			CreditScore.finalCreditAdj = float(self.action_param)
+			print('{} is now the highest matching credit tier'.format(self.cond_param))
+			print('{} is now the highest matching credit adjustment'.format(self.action_param))
 			return True
-		else: return
+		else: return False
 
 	def exec(self):
 		self.condition = self.condNum
 		if not(self.ruleTest()):
 			return
-		if not(self.getHighest()):
+		if (self.getHighest() != None):
 			return
-		if(self.adjust != None):
-			return self.adjust()
+# Can no longer adjust interest rate based on out of order execution of credit score rules
+#		if not(self.getHighest()):
+#			return
+#		if(self.adjust != None):
+#			return self.adjust()
 		raise Exception("Not a valid action")
 
 class ProductName(Operand):
