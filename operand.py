@@ -13,7 +13,7 @@ class Operand:
 		self.condNum = '{} {} {}'.format(self.cond_type, self.cond_operator, self.cond_param)
 		self.condition = None # This should be set to either condStr or condNum per subclass
 
-	# methods for action types  - disqualify, adjust
+	# methods for action types  - disqualify, adjust, contact
 	def disqualify(self):
 		if not(eval(self.condition)):
 			return
@@ -28,7 +28,16 @@ class Operand:
 		if not(eval(self.condition)):
 			return
 		elif(self.action_type == "Adjust"):
-			return self.action_param
+			return float(self.action_param)
+		else:
+			return "Not a valid action for this condition type"
+
+	# new action type
+	def contact(self):
+		if not(eval(self.condition)):
+			return
+		elif(self.action_type == "Contact"):
+			return str(self.action_param)
 		else:
 			return "Not a valid action for this condition type"
 
@@ -40,7 +49,7 @@ class StateOfResidence(Operand):
 
 	def exec(self):
 		self.condition = self.condStr
-		self.disqualify()
+		return self.disqualify()
 
 class CreditScore(Operand):
 	def check(self):
@@ -49,22 +58,26 @@ class CreditScore(Operand):
 	highestTier = 0 # This must change as instances update it
 
 	def getHighest(self):
-		print('highestTier {}'.format(CreditScore.highestTier))
-		if(int(self.cond_param) > CreditScore.highestTier):
+#		print('highestTier {}'.format(CreditScore.highestTier))
+		# This must be gte, otherwise repeated execution calls will fail because cred_score is not > cred_score
+		if(int(self.cond_param) >= CreditScore.highestTier):
 			CreditScore.highestTier = int(self.cond_param)
 #			print('highestTier {}'.format(CreditScore.highestTier))
-#			print('{} is now the highest matching credit tier'.format(self.cond_param))
+			print('{} is now the highest matching credit tier'.format(self.cond_param))
+			return True
 		else: return
 
 	def exec(self):
-		self.getHighest()
-		self.condition = self.condNum
-		self.adjust()
+		if(self.getHighest()):
+			self.condition = self.condNum
+			return self.adjust()
+		else: return
 
 class ProductName(Operand):
 	def check(self):
 		pass
 
+	# implementation of multiple action type functions, with if-return statements
 	def exec(self):
 		self.condition = self.condStr
-		self.adjust()
+		return self.adjust()

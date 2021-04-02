@@ -17,10 +17,8 @@ class RulesEngine:
 		# Helper objects will determine the results
 		# The RulesEngine will handle any updates to top level instance inputs ie person, product, etc
 		
-		sor = []		
-		cs = [None] * len(rules) # This seems overly complicated
-		print(cs)
-		pn = []	
+		cs = [None] * len(rules) # This seems overly complicated to initialize
+#		print(cs)
 
 		# Iterate through the rules list, use an index 'i' so that rule objects can be created with that index
 		for i, part in enumerate(rules):
@@ -42,14 +40,22 @@ class RulesEngine:
 			
 			if(cond_type == "state_of_residence"):
 				sor = operand.StateOfResidence(self.person.state, cond_operator, cond_param, action_type, action_param)
-				if(sor.exec()): pass
+				print('sor execution is {}'.format(sor.exec()))
+				if not (sor.exec() == None):
+					self.product.disqualified = sor.exec()	
+					print(self.product.disqualified)
 			elif(cond_type == "credit_score"):
 				cs.insert(i, operand.CreditScore(self.person.credit_score, cond_operator, cond_param, action_type, action_param))
-# 			print(cs)
-				if(cs[i].exec()): pass
+				print('cs execution is {}'.format(cs[i].exec()))
+				if(cs[i].exec()): 
+					self.product.interest_rate = self.product.interest_rate + cs[i].exec()
+					print(self.product.interest_rate)
 			elif(cond_type == "product_name"):
 				pn = operand.ProductName(self.product.name, cond_operator, cond_param, action_type, action_param)
-				if(pn.exec()): pass
+				print('pn execution is {}'.format(pn.exec()))
+				if(pn.exec()):
+					self.product.interest_rate = self.product.interest_rate + pn.exec()
+					print(self.product.interest_rate)
 			else:
 				pass # Assume header
 		
