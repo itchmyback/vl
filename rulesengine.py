@@ -9,6 +9,9 @@ class RulesEngine:
 		self.person = person # class Person
 		self.product = product # class Product
 		self.rules = rules # data -- string or array?
+		
+		# reset static class variable for Operand(CreditScore.highestTier))
+		operand.CreditScore.highestTier = 0
 
 	# main execution statement	
 	def runRules(self):
@@ -59,9 +62,16 @@ class RulesEngine:
 			else:
 				pass # Assume header
 
+	# Final Outputs
+	def printOutput(self):
+		print("\n###")
+		print("Is the product disqualified?", self.product.disqualified)
+		print("Final interest rate: ", self.product.interest_rate)
+		print("###\n")
+
 # Function to get rules by opening file and saving to list, line by line, and then process to a string array
-def loadRules():
-	file = open("rules_finance.csv", "r")
+def loadRules(path):
+	file = open(path, "r")
 	lineList = file.readlines()
 	arrayList = [] # outputList
 
