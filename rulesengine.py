@@ -15,7 +15,7 @@ class RulesEngine:
 		operand.CreditScore.finalCreditAdj = 0
 		
 		# static variable for new action alert
-		alertMsg = None
+		alertMsg = "No"
 
 	# main execution statement	
 	def runRules(self):
@@ -23,10 +23,11 @@ class RulesEngine:
 		# Instantiate an object depending on the type of condition type - state_of_residence, credit_score, product_name
 		# Helper objects will determine the results
 		# The RulesEngine will handle any updates to top level instance inputs ie person, product, etc
-		## In fact, the RulesEngine should probably handle all the outputs
-		
-#		cs = [None] * len(self.rules) # This seems overly complicated to initialize
-#		print(cs)
+	
+		## Key Assumptions
+		#  match on highest valid credit tier
+		#  single match on state of residence
+		#  single match on product name	
 
 		# Iterate through the rules list, use an index 'i' so that rule objects can be created with that index
 		for i, part in enumerate(self.rules):
@@ -43,8 +44,9 @@ class RulesEngine:
 			# Create by index so that each instance is unique, otherwise class level variables will be lost such as highest credit tier
 				# Also, don't append, insert as the indexes are disjointed between the condition types
 			# Pass in top level instance inputs such as person and product vars	
-			# Use If-Then logic on cond_type, but can extend to switch case for additional conditioon operands
+			# Use If-Then logic on cond_type, but can extend to switch case for additional condition operands
 			# By using helper classes, there is an extra step to fetch pass/fail condition of each rule			
+			## TBD - elimination action if-return statements from subclasses
 			
 			if(cond_type == "state_of_residence"):
 				sor = operand.StateOfResidence(self.person.state, cond_operator, cond_param, action_type, action_param)
@@ -54,19 +56,18 @@ class RulesEngine:
 					print(self.product.disqualified)
 			elif(cond_type == "credit_score"):
 				cs = operand.CreditScore(self.person.credit_score, cond_operator, cond_param, action_type, action_param)
-#				cs.insert(i, operand.CreditScore(self.person.credit_score, cond_operator, cond_param, action_type, action_param))
-#				print('cs execution is {}'.format(cs[i].exec()))
+#				print('cs execution is {}'.format(cs.exec()))
 				if(cs.exec()): 
-#				if(cs[i].exec()): 
 					# This calculation will be handled using a final static approach
-#					self.product.interest_rate = self.product.interest_rate + cs[i].exec()
 					print(self.product.interest_rate)
 			elif(cond_type == "product_name"):
 				pn = operand.ProductName(self.product.name, cond_operator, cond_param, action_type, action_param)
-#				print('pn execution is {}'.format(pn.exec()))
+				print('pn execution is {}'.format(pn.exec()))
 				if(pn.exec()):
-					self.product.interest_rate = self.product.interest_rate + pn.exec()
-					print(self.product.interest_rate)
+					self.product.interest_rate = self.product.interest_rate + pn.adjustVal
+#					print(self.product.interest_rate)
+					RulesEngine.alertMsg = pn.contactVal
+#					print(RulesEngine.alertMsg)
 			else:
 				pass # Assume header
 
@@ -80,7 +81,7 @@ class RulesEngine:
 		print("\n###")
 		print("Is the product disqualified?", self.product.disqualified)
 		print("Final interest rate: ", self.product.interest_rate)
-#		print("Actions to take: ", pn.action_param)
+		print("Contact Customer?: ", RulesEngine.alertMsg)
 		print("###\n")
 
 # Function to get rules by opening file and saving to list, line by line, and then process to a string array
